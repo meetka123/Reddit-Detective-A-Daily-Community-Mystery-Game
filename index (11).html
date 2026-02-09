@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Brain Survival Arena</title>
+<title> TEAM NAME-SS_HACKER_TEAM LEADER BY MEET HACKER INDIA</title>
+<style>
+body{
+  background:black;
+  color:#00ff99;
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.box{
+  width:420px;
+  padding:20px;
+  text-align:center;
+  box-shadow:0 0 25px #00ff99;
+  border-radius:15px;
+}
+button{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  font-size:16px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+.green{background:#00ff99;color:black;}
+.red{background:#ff4d4d;color:white;}
+.blue{background:#00bfff;color:black;}
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+<div class="box">
+
+<h2>🧠 Brain Survival Arena</h2>
+
+<div id="lang">
+  <h3>Select Language</h3>
+  <button class="blue" onclick="setLang('en')">English</button>
+  <button class="blue" onclick="setLang('hi')">हिंदी</button>
+</div>
+
+<div id="level" class="hidden">
+  <h3>Select Level</h3>
+  <button class="green" onclick="start('beginner')">Beginner (Students)</button>
+  <button class="green" onclick="start('medium')">Medium (Business)</button>
+  <button class="green" onclick="start('advanced')">Advanced (Cyber)</button>
+</div>
+
+<div id="game" class="hidden">
+  <h3 id="count"></h3>
+  <p id="question"></p>
+  <button class="green" onclick="answer(true)">True</button>
+  <button class="red" onclick="answer(false)">False</button>
+</div>
+
+<div id="end" class="hidden">
+  <h2 id="result"></h2>
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+</div>
+
+<script>
+let lang="en", pool=[], current=null, count=0;
+
+const QUESTIONS = {
+  beginner:{
+    en:[
+      {q:"Discipline helps students succeed.",a:true},
+      {q:"Studying only before exam is enough.",a:false},
+      {q:"Time management improves learning.",a:true},
+      {q:"Daily revision improves memory.",a:true},
+      {q:"Sleeping less always gives more study time productively.",a:false},
+      {q:"Practice makes concepts stronger.",a:true},
+      {q:"Using phone while studying reduces focus.",a:true},
+      {q:"Group study never helps.",a:false},
+      {q:"Writing notes helps in remembering.",a:true},
+      {q:"Skipping school regularly is good for learning.",a:false},
+      {q:"Asking doubts improves understanding.",a:true},
+      {q:"Healthy food helps brain performance.",a:true},
+      {q:"Multitasking always increases productivity.",a:false},
+      {q:"Reading daily improves vocabulary.",a:true},
+      {q:"Exams are the only way to learn.",a:false},
+      {q:"Setting goals helps students succeed.",a:true},
+      {q:"Late night cramming is always effective.",a:false},
+      {q:"Taking short breaks improves focus.",a:true},
+      {q:"Copying homework helps learning.",a:false},
+      {q:"Listening carefully in class saves study time later.",a:true},
+      {q:"Stress never affects studies.",a:false},
+      {q:"Organized notes make revision easier.",a:true},
+      {q:"Attendance has no impact on performance.",a:false},
+      {q:"Regular practice improves math skills.",a:true},
+      {q:"Good handwriting is useless in exams.",a:false},
+      {q:"Understanding is better than memorizing blindly.",a:true},
+      {q:"All students learn at the same speed.",a:false},
+      {q:"Reading instructions carefully avoids mistakes.",a:true},
+      {q:"Time table helps manage subjects.",a:true},
+      {q:"Studying with music always improves focus.",a:false},
+      {q:"Self-discipline is key to success.",a:true},
+      {q:"Failure means you can never succeed.",a:false},
+      {q:"Reviewing mistakes helps improvement.",a:true}
+    ],
+    hi:[
+      {q:"अनुशासन से छात्र सफल बनते हैं।",a:true},
+      {q:"केवल परीक्षा से पहले पढ़ना काफी है।",a:false},
+      {q:"समय प्रबंधन से पढ़ाई बेहतर होती है।",a:true},
+      {q:"रोज दोहराने से याददाश्त बेहतर होती है।",a:true},
+      {q:"कम सोना पढ़ाई के लिए हमेशा अच्छा है।",a:false},
+      {q:"अभ्यास से विषय मजबूत होते हैं।",a:true},
+      {q:"पढ़ाई के समय फोन ध्यान भटकाता है।",a:true},
+      {q:"ग्रुप स्टडी कभी मदद नहीं करती।",a:false},
+      {q:"नोट्स लिखने से याद रखना आसान होता है।",a:true},
+      {q:"स्कूल छोड़ना पढ़ाई के लिए अच्छा है।",a:false},
+      {q:"सवाल पूछने से समझ बढ़ती है।",a:true},
+      {q:"स्वस्थ खाना दिमाग के लिए अच्छा है।",a:true},
+      {q:"मल्टीटास्किंग हमेशा फायदेमंद होती है।",a:false},
+      {q:"रोज पढ़ने से शब्दावली बढ़ती है।",a:true},
+      {q:"सिर्फ परीक्षा से ही सीखना होता है।",a:false},
+      {q:"लक्ष्य तय करने से सफलता मिलती है।",a:true},
+      {q:"आखिरी रात की पढ़ाई हमेशा कारगर होती है।",a:false},
+      {q:"छोटे ब्रेक लेने से ध्यान बढ़ता है।",a:true},
+      {q:"होमवर्क कॉपी करने से सीखते हैं।",a:false},
+      {q:"क्लास में ध्यान से सुनना समय बचाता है।",a:true},
+      {q:"तनाव पढ़ाई को प्रभावित नहीं करता।",a:false},
+      {q:"साफ-सुथरे नोट्स से दोहराना आसान होता है।",a:true},
+      {q:"हाजिरी का प्रदर्शन पर असर नहीं पड़ता।",a:false},
+      {q:"नियमित अभ्यास से गणित अच्छा होता है।",a:true},
+      {q:"अच्छी लिखावट बेकार है।",a:false},
+      {q:"समझकर पढ़ना रटने से बेहतर है।",a:true},
+      {q:"सभी छात्र एक ही गति से सीखते हैं।",a:false},
+      {q:"निर्देश ध्यान से पढ़ने से गलती कम होती है।",a:true},
+      {q:"टाइम टेबल से पढ़ाई संतुलित रहती है।",a:true},
+      {q:"म्यूजिक के साथ पढ़ाई हमेशा अच्छी होती है।",a:false},
+      {q:"आत्म-अनुशासन सफलता की कुंजी है।",a:true},
+      {q:"फेल होने के बाद सफलता नहीं मिलती।",a:false},
+      {q:"गलतियों से सीखने से सुधार होता है।",a:true}
+    ]
+  },
+
+  medium:{
+    en:[
+      {q:"Cash flow is more important than profit.",a:true},
+      {q:"All businesses succeed quickly.",a:false},
+      {q:"Customer trust builds brand value.",a:true},
+      {q:"Customer satisfaction drives repeat business.",a:true},
+      {q:"Marketing is useless for small businesses.",a:false},
+      {q:"Profit and cash flow are different.",a:true},
+      {q:"Brand reputation affects sales.",a:true},
+      {q:"Ignoring competitors is a smart strategy.",a:false},
+      {q:"Online presence helps modern businesses.",a:true},
+      {q:"All risks should be avoided in business.",a:false},
+      {q:"Understanding customer needs is important.",a:true},
+      {q:"Pricing too low always increases profit.",a:false},
+      {q:"Teamwork improves productivity.",a:true},
+      {q:"Business plans are a waste of time.",a:false},
+      {q:"Innovation helps companies grow.",a:true},
+      {q:"Every customer complaint should be ignored.",a:false},
+      {q:"Trust builds long term business relationships.",a:true},
+      {q:"Advertising guarantees success.",a:false},
+      {q:"Market research reduces business risk.",a:true},
+      {q:"A good logo alone builds a strong brand.",a:false},
+      {q:"Employee motivation affects performance.",a:true},
+      {q:"All businesses need the same strategy.",a:false},
+      {q:"Digital payments are growing in importance.",a:true},
+      {q:"Poor service can damage reputation.",a:true},
+      {q:"Bigger office always means better business.",a:false},
+      {q:"Customer feedback helps improvement.",a:true},
+      {q:"Sales skills are important for growth.",a:true},
+      {q:"Business ethics have no impact on profit.",a:false},
+      {q:"Networking helps business opportunities.",a:true},
+      {q:"High prices always mean high quality.",a:false},
+      {q:"Cost control increases profit margins.",a:true},
+      {q:"Training employees is an unnecessary cost.",a:false},
+      {q:"Loyal customers are valuable assets.",a:true}
+    ],
+    hi:[
+      {q:"कैश फ्लो लाभ से अधिक महत्वपूर्ण है।",a:true},
+      {q:"हर बिजनेस जल्दी सफल होता है।",a:false},
+      {q:"ग्राहक भरोसा ब्रांड बनाता है।",a:true},
+      {q:"ग्राहक संतुष्टि से दोबारा बिजनेस मिलता है।",a:true},
+      {q:"छोटे बिजनेस के लिए मार्केटिंग बेकार है।",a:false},
+      {q:"लाभ और कैश फ्लो अलग होते हैं।",a:true},
+      {q:"ब्रांड की प्रतिष्ठा बिक्री पर असर डालती है।",a:true},
+      {q:"प्रतियोगियों को नजरअंदाज करना अच्छा है।",a:false},
+      {q:"ऑनलाइन मौजूदगी बिजनेस के लिए जरूरी है।",a:true},
+      {q:"बिजनेस में हर जोखिम से बचना चाहिए।",a:false},
+      {q:"ग्राहक की जरूरत समझना जरूरी है।",a:true},
+      {q:"बहुत कम कीमत रखने से हमेशा फायदा होता है।",a:false},
+      {q:"टीमवर्क से उत्पादकता बढ़ती है।",a:true},
+      {q:"बिजनेस प्लान समय की बर्बादी है।",a:false},
+      {q:"नवाचार से कंपनी बढ़ती है।",a:true},
+      {q:"ग्राहक शिकायतों को नजरअंदाज करना चाहिए।",a:false},
+      {q:"भरोसा लंबे संबंध बनाता है।",a:true},
+      {q:"विज्ञापन सफलता की गारंटी है।",a:false},
+      {q:"मार्केट रिसर्च से जोखिम कम होता है।",a:true},
+      {q:"सिर्फ लोगो से ब्रांड मजबूत बनता है।",a:false},
+      {q:"कर्मचारियों की प्रेरणा से प्रदर्शन बढ़ता है।",a:true},
+      {q:"हर बिजनेस के लिए एक ही रणनीति सही है।",a:false},
+      {q:"डिजिटल पेमेंट का महत्व बढ़ रहा है।",a:true},
+      {q:"खराब सेवा से प्रतिष्ठा खराब होती है।",a:true},
+      {q:"बड़ा ऑफिस मतलब अच्छा बिजनेस।",a:false},
+      {q:"ग्राहक फीडबैक से सुधार होता है।",a:true},
+      {q:"सेल्स स्किल ग्रोथ के लिए जरूरी है।",a:true},
+      {q:"बिजनेस नैतिकता का लाभ पर असर नहीं पड़ता।",a:false},
+      {q:"नेटवर्किंग से मौके मिलते हैं।",a:true},
+      {q:"महंगा मतलब हमेशा अच्छा क्वालिटी।",a:false},
+      {q:"खर्च नियंत्रण से मुनाफा बढ़ता है।",a:true},
+      {q:"कर्मचारियों को ट्रेनिंग देना बेकार खर्च है।",a:false},
+      {q:"वफादार ग्राहक कीमती होते हैं।",a:true}
+    ]
+  },
+
+  advanced:{
+    en:[
+      {q:"Two-factor authentication increases security.",a:true},
+      {q:"Public WiFi is always safe.",a:false},
+      {q:"Strong passwords reduce hacking risk.",a:true},
+      {q:"Using the same password everywhere is risky.",a:true},
+      {q:"Antivirus guarantees 100% protection.",a:false},
+      {q:"Phishing emails try to steal sensitive data.",a:true},
+      {q:"Updating software improves security.",a:true},
+      {q:"Hackers only target big companies.",a:false},
+      {q:"HTTPS is safer than HTTP.",a:true},
+      {q:"Public WiFi can be insecure.",a:true},
+      {q:"Clicking unknown links is safe.",a:false},
+      {q:"Firewalls help block unauthorized access.",a:true},
+      {q:"Sharing OTPs is safe with friends.",a:false},
+      {q:"Social engineering targets human psychology.",a:true},
+      {q:"Strong passwords include symbols and numbers.",a:true},
+      {q:"Cyber security is only IT department's job.",a:false},
+      {q:"Backup helps recover from ransomware.",a:true},
+      {q:"USB drives can spread malware.",a:true},
+      {q:"Incognito mode makes you fully anonymous.",a:false},
+      {q:"Two step verification adds extra security.",a:true},
+      {q:"Free software from unknown sites is always safe.",a:false},
+      {q:"Encryption protects data privacy.",a:true},
+      {q:"Ignoring updates keeps system stable and secure.",a:false},
+      {q:"Password managers help create strong passwords.",a:true},
+      {q:"Biometric login is generally secure.",a:true},
+      {q:"Every email attachment is safe to open.",a:false},
+      {q:"Cyber awareness reduces fraud risk.",a:true},
+      {q:"VPN hides your IP address.",a:true},
+      {q:"Cyber attacks can target individuals too.",a:true},
+      {q:"Logging out from shared computers is important.",a:true},
+      {q:"Short passwords are easier to hack.",a:true},
+      {q:"Security questions should be easy to guess.",a:false},
+      {q:"Regular backups protect important data.",a:true}
+    ],
+    hi:[
+      {q:"टू-फैक्टर ऑथेंटिकेशन सुरक्षा बढ़ाता है।",a:true},
+      {q:"पब्लिक वाईफाई हमेशा सुरक्षित होता है।",a:false},
+      {q:"मजबूत पासवर्ड हैकिंग कम करते हैं।",a:true},
+      {q:"एक ही पासवर्ड हर जगह इस्तेमाल करना खतरनाक है।",a:true},
+      {q:"एंटीवायरस 100% सुरक्षा देता है।",a:false},
+      {q:"फिशिंग ईमेल डेटा चोरी करने की कोशिश करते हैं।",a:true},
+      {q:"सॉफ्टवेयर अपडेट से सुरक्षा बढ़ती है।",a:true},
+      {q:"हैकर सिर्फ बड़ी कंपनियों को निशाना बनाते हैं।",a:false},
+      {q:"HTTPS, HTTP से ज्यादा सुरक्षित है।",a:true},
+      {q:"पब्लिक वाईफाई असुरक्षित हो सकता है।",a:true},
+      {q:"अनजान लिंक पर क्लिक करना सुरक्षित है।",a:false},
+      {q:"फायरवॉल अनधिकृत एक्सेस रोकता है।",a:true},
+      {q:"OTP शेयर करना सुरक्षित है।",a:false},
+      {q:"सोशल इंजीनियरिंग इंसानों को टारगेट करती है।",a:true},
+      {q:"मजबूत पासवर्ड में नंबर और चिन्ह होते हैं।",a:true},
+      {q:"साइबर सुरक्षा सिर्फ IT टीम की जिम्मेदारी है।",a:false},
+      {q:"बैकअप से रैंसमवेयर से बचाव होता है।",a:true},
+      {q:"USB से वायरस फैल सकता है।",a:true},
+      {q:"इन्कॉग्निटो मोड पूरी तरह गुमनाम बनाता है।",a:false},
+      {q:"टू स्टेप वेरिफिकेशन सुरक्षा बढ़ाता है।",a:true},
+      {q:"अनजान साइट से फ्री सॉफ्टवेयर सुरक्षित है।",a:false},
+      {q:"एन्क्रिप्शन डेटा को सुरक्षित रखता है।",a:true},
+      {q:"अपडेट नजरअंदाज करना सुरक्षित है।",a:false},
+      {q:"पासवर्ड मैनेजर मजबूत पासवर्ड बनाते हैं।",a:true},
+      {q:"बायोमेट्रिक लॉगिन आमतौर पर सुरक्षित है।",a:true},
+      {q:"हर ईमेल अटैचमेंट सुरक्षित होता है।",a:false},
+      {q:"साइबर जागरूकता से धोखाधड़ी कम होती है।",a:true},
+      {q:"VPN IP एड्रेस छिपाता है।",a:true},
+      {q:"साइबर अटैक आम लोगों को भी निशाना बना सकते हैं।",a:true},
+      {q:"शेयर कंप्यूटर में लॉगआउट करना जरूरी है।",a:true},
+      {q:"छोटे पासवर्ड जल्दी हैक होते हैं।",a:true},
+      {q:"सिक्योरिटी सवाल आसान होने चाहिए।",a:false},
+      {q:"नियमित बैकअप जरूरी है।",a:true}
+    ]
+  }
+};
+
+function setLang(l){
+  lang=l;
+  document.getElementById("lang").classList.add("hidden");
+  document.getElementById("level").classList.remove("hidden");
+}
+
+function start(level){
+  pool = [...QUESTIONS[level][lang]];
+  count=0;
+  document.getElementById("level").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+  nextQ();
+}
+
+function nextQ(){
+  if(pool.length===0 || count===100){
+    end(true); return;
+  }
+  let i=Math.floor(Math.random()*pool.length);
+  current=pool.splice(i,1)[0];
+  count++;
+  document.getElementById("count").innerText=`Question ${count}/100`;
+  document.getElementById("question").innerText=current.q;
+}
+
+function answer(c){
+  if(c===current.a) nextQ();
+  else end(false);
+}
+
+function end(win){
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("end").classList.remove("hidden");
+  document.getElementById("result").innerHTML=
+    win?"🏆 YOU ARE WINNER!":"❌ GAME OVER<br>Cleared: "+count;
+}
+</script>
+
+</body>
+</html>
